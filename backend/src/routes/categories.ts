@@ -9,7 +9,8 @@ categoryRouter.get('/', async (_req: Request, res: Response) => {
 });
 
 categoryRouter.get('/:id', async (req: Request, res: Response) => {
-  const category = await prisma.category.findUnique({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  const category = await prisma.category.findUnique({ where: { id } });
   if (!category) { res.status(404).json({ error: 'Category not found' }); return; }
   res.json(category);
 });
@@ -22,15 +23,17 @@ categoryRouter.post('/', async (req: Request, res: Response) => {
 });
 
 categoryRouter.put('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const { name, color } = req.body;
   const category = await prisma.category.update({
-    where: { id: req.params.id },
+    where: { id },
     data: { ...(name && { name }), ...(color && { color }) },
   });
   res.json(category);
 });
 
 categoryRouter.delete('/:id', async (req: Request, res: Response) => {
-  await prisma.category.delete({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  await prisma.category.delete({ where: { id } });
   res.status(204).send();
 });

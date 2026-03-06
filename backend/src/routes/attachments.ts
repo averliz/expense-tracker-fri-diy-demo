@@ -14,7 +14,7 @@ attachmentRouter.post(
   async (req: Request, res: Response) => {
     if (!req.file) { res.status(400).json({ error: 'No file uploaded' }); return; }
 
-    const { transactionId } = req.params;
+    const transactionId = req.params.transactionId as string;
     const transaction = await prisma.transaction.findUnique({ where: { id: transactionId } });
     if (!transaction) { res.status(404).json({ error: 'Transaction not found' }); return; }
 
@@ -25,7 +25,7 @@ attachmentRouter.post(
 
     const attachment = await prisma.attachment.create({
       data: {
-        transactionId,
+        transactionId: transactionId,
         fileName: req.file.originalname,
         fileKey,
         fileSize: req.file.size,
@@ -39,14 +39,16 @@ attachmentRouter.post(
 
 // Get attachment metadata
 attachmentRouter.get('/attachments/:id', async (req: Request, res: Response) => {
-  const attachment = await prisma.attachment.findUnique({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  const attachment = await prisma.attachment.findUnique({ where: { id } });
   if (!attachment) { res.status(404).json({ error: 'Attachment not found' }); return; }
   res.json(attachment);
 });
 
 // Get presigned download URL
 attachmentRouter.get('/attachments/:id/download', async (req: Request, res: Response) => {
-  const attachment = await prisma.attachment.findUnique({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  const attachment = await prisma.attachment.findUnique({ where: { id } });
   if (!attachment) { res.status(404).json({ error: 'Attachment not found' }); return; }
   const url = await getPresignedUrl(attachment.fileKey);
   res.json({ url });
@@ -54,9 +56,10 @@ attachmentRouter.get('/attachments/:id/download', async (req: Request, res: Resp
 
 // Delete attachment
 attachmentRouter.delete('/attachments/:id', async (req: Request, res: Response) => {
-  const attachment = await prisma.attachment.findUnique({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  const attachment = await prisma.attachment.findUnique({ where: { id } });
   if (!attachment) { res.status(404).json({ error: 'Attachment not found' }); return; }
   await deleteFile(attachment.fileKey);
-  await prisma.attachment.delete({ where: { id: req.params.id } });
+  await prisma.attachment.delete({ where: { id } });
   res.status(204).send();
 });

@@ -27,8 +27,9 @@ transactionRouter.get('/', async (req: Request, res: Response) => {
 });
 
 transactionRouter.get('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const transaction = await prisma.transaction.findUnique({
-    where: { id: req.params.id },
+    where: { id },
     include: { category: true, attachments: true },
   });
   if (!transaction) { res.status(404).json({ error: 'Transaction not found' }); return; }
@@ -48,9 +49,10 @@ transactionRouter.post('/', async (req: Request, res: Response) => {
 });
 
 transactionRouter.put('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const { description, amount, type, date, categoryId } = req.body;
   const transaction = await prisma.transaction.update({
-    where: { id: req.params.id },
+    where: { id },
     data: {
       ...(description && { description }),
       ...(amount && { amount }),
@@ -64,6 +66,7 @@ transactionRouter.put('/:id', async (req: Request, res: Response) => {
 });
 
 transactionRouter.delete('/:id', async (req: Request, res: Response) => {
-  await prisma.transaction.delete({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  await prisma.transaction.delete({ where: { id } });
   res.status(204).send();
 });

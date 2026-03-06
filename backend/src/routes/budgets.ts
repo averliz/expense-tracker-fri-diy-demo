@@ -56,8 +56,9 @@ budgetRouter.get('/', async (req: Request, res: Response) => {
 });
 
 budgetRouter.get('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const budget = await prisma.budget.findUnique({
-    where: { id: req.params.id },
+    where: { id },
     include: { category: true },
   });
   if (!budget) { res.status(404).json({ error: 'Budget not found' }); return; }
@@ -77,9 +78,10 @@ budgetRouter.post('/', async (req: Request, res: Response) => {
 });
 
 budgetRouter.put('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const { amount, month, year } = req.body;
   const budget = await prisma.budget.update({
-    where: { id: req.params.id },
+    where: { id },
     data: {
       ...(amount && { amount }),
       ...(month && { month }),
@@ -91,6 +93,7 @@ budgetRouter.put('/:id', async (req: Request, res: Response) => {
 });
 
 budgetRouter.delete('/:id', async (req: Request, res: Response) => {
-  await prisma.budget.delete({ where: { id: req.params.id } });
+  const id = req.params.id as string;
+  await prisma.budget.delete({ where: { id } });
   res.status(204).send();
 });
